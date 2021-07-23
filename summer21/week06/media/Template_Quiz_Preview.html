@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <!-- saved from url=(0014)about:internet -->
 <html>
 <head>
@@ -38,18 +38,25 @@
 
 <script type="text/javascript">
     var quizXMP = '$CM_QuizPreviewXMP'; <!-- Just the XMP of the section you are previewing -->
-	 document.addEventListener('DOMContentLoaded', function() {
-        function refreshQuizOnContinue(event) {
-            var targetClassList = event.target.classList;
-            if(targetClassList.contains('continue-video-button') || targetClassList.contains('continue-button')) {
-                window.location.href = window.location.href;
-            }
-        }
-        var bodyElement = document.getElementsByTagName('body')[0];
-        bodyElement.addEventListener('click', refreshQuizOnContinue);
+	 $(document).ready(function(e) {
+		function refreshQuizOnContinue(event) {
+			if($(event.target).hasClass('continue-video-button') || $(event.target).hasClass('continue-button'))
+				window.location.href = window.location.href;
+		}
+		$('body').on('click', refreshQuizOnContinue)
 
-        var containerElement = document.getElementById('tsc_quiz_preview');
-        TSC.mediaInterface.displayQuizPreview(containerElement, quizXMP);
+		var xmpModel = TSC.Xmp.create();
+		xmpModel.parse(quizXMP);
+        xmpModel.ready.then(function() {
+            TSC.playerConfiguration.configureFromXmp(xmpModel);
+            TSC.localizationStrings.configureFromXmp(xmpModel);
+
+            var quizModel = TSC.Quiz.create(xmpModel);
+            TSC.quizController.quizModel = quizModel;
+            TSC.quizController.setViewContainer($("#tsc_quiz_preview"));
+            TSC.quizController.displayNextQuestionSet();
+            TSC.quizController.setQuestionGrader(TSC.questionGrader.XMP);
+        });
     });
 </script>
 
